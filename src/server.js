@@ -3,7 +3,7 @@ require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") }
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId } = require("mongodb");
-const { createRemoteJWKSet, jwtVerify } = require("jose");
+const { createRemoteJWKSet, decodeJwt, jwtVerify } = require("jose");
 const { validateEvent } = require("./validation/events");
 
 const app = express();
@@ -90,9 +90,33 @@ async function authenticate(req, res, next) {
       email: typeof payload.email === "string" ? payload.email : "",
     };
     return next();
-  } catch {
+  } catch (error) {
+    logJwtFailure(token, error);
     return res.status(401).json({ message: "Invalid or expired authentication token." });
   }
+}
+
+// Logs why a JWT was rejected without ever logging the token itself.
+// iss/aud/exp are public claims, so logging them next to the expected values
+// makes issuer/audience mismatches visible in the host logs.
+function logJwtFailure(token, error) {
+  let claims = {};
+  try {
+    const { iss, aud, exp } = decodeJwt(token);
+    claims = { tokenIssuer: iss, tokenAudience: aud, tokenExpiresAt: exp ? new Date(exp * 1000).toISOString() : undefined };
+  } catch {
+    claims = { tokenIssuer: "unreadable" };
+  }
+  console.warn("JWT verification failed:", {
+    code: error?.code || error?.name,
+    claim: error?.claim,
+    reason: error?.reason,
+    message: error?.message,
+    expectedIssuer: issuer,
+    expectedAudience: audience,
+    jwksUrl,
+    ...claims,
+  });
 }
 
 app.get("/api/health", (_req, res) => {
@@ -385,6 +409,7 @@ async function startServer() {
   );
   app.listen(port, () => {
     console.log(`Community Connect server running on port ${port}`);
+    console.log("Auth configuration:", { issuer, audience, jwksUrl, allowedOrigins: clientOrigins, nodeEnv: process.env.NODE_ENV });
   });
 }
 
