@@ -2,6 +2,19 @@
 
 The Express API owns application data and event authorization. The Next.js App Router is the single Better Auth host and shares the configured MongoDB database with Express. Express does not expose a second auth handler; it verifies the Next.js Better Auth JWT through its JWKS endpoint and derives protected-operation identity from the verified `sub` claim.
 
+This is the **server** repository. The Next.js frontend, which also hosts Better Auth, lives in the [client repository](https://github.com/Maidul-057/CommunityConnect-Client).
+
+**Live website:** https://community-connect-client-xi.vercel.app
+
+## Project links
+
+| | Link |
+| --- | --- |
+| Live website (Vercel) | https://community-connect-client-xi.vercel.app |
+| Live API (Render) | https://communityconnectserver-i8x6.onrender.com |
+| Client repository (Next.js) | https://github.com/Maidul-057/CommunityConnect-Client |
+| Server repository (Express) | https://github.com/Maidul-057/CommunityConnectServer |
+
 ## Local development
 
 1. Start MongoDB and configure the same database URI/name in the client and server environments.
@@ -13,8 +26,6 @@ The Express API owns application data and event authorization. The Next.js App R
    npm install
    npm run dev
    ```
-**Live website:** https://community-connect-client-xi.vercel.app
-**Client Repository:** https://community-connect-client-xi.vercel.app
 
 ## Optional GitHub OAuth
 
