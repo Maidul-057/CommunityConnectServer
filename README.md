@@ -13,6 +13,8 @@ The Express API owns application data and event authorization. The Next.js App R
    npm install
    npm run dev
    ```
+**Live website:** https://community-connect-client-xi.vercel.app
+**Client Repository:** https://community-connect-client-xi.vercel.app
 
 ## Optional GitHub OAuth
 
@@ -33,6 +35,12 @@ For local development, that is `http://localhost:3000/api/auth/callback/github`.
 - Public upcoming-event queries exclude past events. `/api/events/recent` sorts ascending by date and limits the MongoDB query to six.
 
 Both processes use the same `MONGODB_URI` and `MONGODB_DB`, preserving Better Auth's user, account, session, and JWKS records without migration. The Next.js auth server persists the standard `image` field; the profile API exposes it as `photoUrl`.
+
+## CORS behavior
+
+`CLIENT_URL` is a comma-separated allow-list of exact browser origins (for example `https://community-connect-client-xi.vercel.app`). Trailing slashes are ignored because browsers never send them. Wildcards are not supported, and credentialed requests are only answered for listed origins.
+
+Requests from any other origin, including preflight `OPTIONS` requests, receive `403` before any route runs. The first rejection from each origin is logged as `CORS rejected origin:` with the origin, method, path, and the current allow-list, so a mismatched or preview URL is easy to spot in the host logs. Requests with no `Origin` header (server-to-server calls and health checks) are unaffected.
 
 ## API reference
 
